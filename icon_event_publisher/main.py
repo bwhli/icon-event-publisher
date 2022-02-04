@@ -33,7 +33,6 @@ def main():
                     valid_transactions = [
                         Tx(**tx) for tx in transactions if tx["receipt_status"] == 1 and tx["from_address"] != "None"
                     ]
-                    print(valid_transactions)
                     if len(valid_transactions) > 0:
                         with ThreadPoolExecutor(max_workers=len(valid_transactions)) as executor:
                             for tx in valid_transactions:
