@@ -1,0 +1,1 @@
+main: python icon_event_publisher/main.py
