@@ -32,6 +32,10 @@ def get_token_ticker(contract: str):
     else:
         return TOKENS[contract]["ticker"]
 
+@lru_cache(maxsize=1)
+def get_token_tickers():
+    token_tickers = [ TOKENS[contract]["ticker"] for contract in TOKENS.keys()]
+    return token_tickers
 
 def get_token_precision(contract: str):
     if contract[:2] != "cx":
@@ -72,10 +76,14 @@ def decode_hex_string(input):
 
 
 def format_token(token_amount: int, token_contract: str):
-    if token_contract[:2] != "cx":
-        token_contract = get_token_contract(token_contract)
-    token_symbol = get_token_ticker(token_contract)
-    token_precision = get_token_precision(token_contract)
+    if token_contract == "ICX":
+        token_precision = 18
+        token_symbol = "ICX"
+    else:
+        if token_contract in get_token_tickers():
+            token_contract = get_token_contract(token_contract)
+        token_symbol = get_token_ticker(token_contract)
+        token_precision = get_token_precision(token_contract)
     token_amount = token_amount / 10 ** token_precision
     if token_amount.is_integer() is True:
         result = f"{token_amount:,.{0}f} {token_symbol}"
@@ -83,10 +91,15 @@ def format_token(token_amount: int, token_contract: str):
         result = f"{token_amount:,.{4}f} {token_symbol}"
     return result
 
+def get_tracker_url(tx_hash: str):
+    return f"https://tracker.icon.community/transaction/{tx_hash}"
 
 def hex_to_int(input):
     result = int(input, 16)
     return result
+
+def shorten_icx_address(icx_address: str):
+    return f"{icx_address[:4]}...{icx_address[-4:]}"
 
 
 ###################
@@ -94,15 +107,12 @@ def hex_to_int(input):
 ###################
 
 
-def send_discord_notification(message: tuple, from_address: str, tx_hash: str, ext_url: None, discord_webhook_url):
-    if ext_url is None:
-        ext_url = f"https://tracker.icon.community/transaction/{tx_hash}"
-    emoji, body = message[0], message[1]
-    formatted_message = f"{emoji} `{from_address[:4]}...{from_address[-4:]}`  [**{body}**](<{ext_url}>)."
+def send_discord_notification(message: str, discord_webhook_url: str):
+    print(message)
     payload = {
         "username": "Balanced Activity Monitor",
         "avatar_url": "https://brianli.com/balanced/balanced-dao.png",
-        "content": formatted_message,
+        "content": message,
     }
     r = requests.post(discord_webhook_url, json=payload)
     if r.status_code == 204:

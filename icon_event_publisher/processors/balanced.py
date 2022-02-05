@@ -1,7 +1,7 @@
 import ast
 from models import Tx
 from rich import print
-from utils import comma_separator, format_token, hex_to_int
+from utils import comma_separator, format_token, get_tracker_url, hex_to_int, shorten_icx_address
 
 
 def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
@@ -127,5 +127,9 @@ def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
             stake_amount = hex_to_int(tx.data["params"]["_value"])
             message = ("🥩", f"adjusted BALN stake to {format_token(stake_amount, 'BALN')}")
 
-    if message is not None:
-        return message, ext_url
+    # Format Discord notification message.
+    if ext_url is None:
+        ext_url = get_tracker_url(tx.hash)
+    emoji, body = message[0], message[1]
+    formatted_message = f"{emoji} `{shorten_icx_address(tx.from_address)}` [**{body}**](<{ext_url}>)"
+    return formatted_message

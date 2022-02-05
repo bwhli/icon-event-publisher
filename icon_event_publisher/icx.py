@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 from iconsdk.icon_service import IconService
 from iconsdk.providers.http_provider import HTTPProvider
 from models import Log
+from rich import print
 
 load_dotenv()
 
