@@ -1,7 +1,7 @@
 import ast
 
-from icon_event_publisher.models import Tx
-from icon_event_publisher.utils import (
+from models import Tx
+from utils import (
     comma_separator,
     format_token,
     get_tracker_url,

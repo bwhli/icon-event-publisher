@@ -6,11 +6,11 @@ import requests
 from dotenv import load_dotenv
 from rich import print
 
-from icon_event_publisher.contracts import get_contracts
-from icon_event_publisher.icx import Icx
-from icon_event_publisher.models import Tx
-from icon_event_publisher.processors import process_transaction
-from icon_event_publisher.utils import is_production
+from contracts import get_contracts
+from icx import Icx
+from models import Tx
+from processors import process_transaction
+from utils import is_production
 
 load_dotenv()
 

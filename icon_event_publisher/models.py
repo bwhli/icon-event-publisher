@@ -3,7 +3,7 @@ from typing import Union
 import rapidjson
 from pydantic import BaseModel, validator
 
-from icon_event_publisher.utils import convert_hex_to_int
+from utils import convert_hex_to_int
 
 
 class Log(BaseModel):

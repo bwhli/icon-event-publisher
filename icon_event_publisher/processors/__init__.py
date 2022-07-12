@@ -1,10 +1,10 @@
 import os
 
-from icon_event_publisher.contracts import BALANCED_CONTRACTS, CRAFT_CONTRACTS
-from icon_event_publisher.icx import Icx
-from icon_event_publisher.models import Tx
-from icon_event_publisher.processors.balanced import process_balanced_transaction
-from icon_event_publisher.processors.craft import process_craft_transaction
+from contracts import BALANCED_CONTRACTS, CRAFT_CONTRACTS
+from icx import Icx
+from models import Tx
+from processors.balanced import process_balanced_transaction
+from processors.craft import process_craft_transaction
 from rich import print
 from utils import is_production, send_discord_notification
 
