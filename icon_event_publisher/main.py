@@ -1,12 +1,14 @@
 import os
-import requests
 from concurrent.futures import ThreadPoolExecutor
+from time import sleep
+
+import requests
 from dotenv import load_dotenv
+from rich import print
+
 from icx import Icx
 from models import Tx
 from processors import process_transaction
-from rich import print
-from time import sleep
 from utils import is_production
 
 load_dotenv()
@@ -16,7 +18,7 @@ def main():
 
     # Initialize start block.
     if is_production() is True:
-        latest_block = Icx().get_latest_block()
+        latest_block = Icx.get_latest_block()
     else:
         latest_block = os.getenv("DEBUG_BLOCK")
 
@@ -31,10 +33,14 @@ def main():
                 transactions = r.json()
                 if len(transactions) > 0:
                     valid_transactions = [
-                        Tx(**tx) for tx in transactions if tx["receipt_status"] == 1 and tx["from_address"] != "None"
+                        Tx(**tx)
+                        for tx in transactions
+                        if tx["status"] == "0x1" and tx["from_address"] != "None"
                     ]
                     if len(valid_transactions) > 0:
-                        with ThreadPoolExecutor(max_workers=len(valid_transactions)) as executor:
+                        with ThreadPoolExecutor(
+                            max_workers=len(valid_transactions)
+                        ) as executor:
                             for tx in valid_transactions:
                                 executor.submit(process_transaction, tx=tx)
                     break
@@ -53,4 +59,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main() 
+    main()

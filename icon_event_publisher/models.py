@@ -1,23 +1,18 @@
 import json
+
 from pydantic import BaseModel, validator
-from typing import Optional
 
 
 class Log(BaseModel):
-    type: str
-    log_index: int
-    max_log_index: int
-    transaction_hash: str
-    transaction_index: int
+
     address: str
-    data: str
-    indexed: str
     block_number: int
     block_timestamp: int
-    block_hash: str
-    item_id: str
-    item_timestamp: Optional[str]
+    data: str
+    indexed: str
+    log_index: int
     method: str
+    transaction_hash: str
 
     @validator("indexed")
     @classmethod
@@ -42,17 +37,17 @@ class Log(BaseModel):
 
 
 class Tx(BaseModel):
-    from_address: str
-    to_address: str
-    value: str
-    block_timestamp: int
-    hash: str
     block_number: int
-    transaction_fee: str
-    receipt_status: int
-    type: str
-    method: str
+    block_timestamp: int
     data: str
+    from_address: str
+    hash: str
+    method: str
+    status: str
+    to_address: str
+    type: str
+    value: str
+    value_decimal: int
 
     @validator("data")
     @classmethod
