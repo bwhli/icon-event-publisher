@@ -1,13 +1,13 @@
-from models import Tx
-from rich import print
-from utils import (
+from icon_event_publisher.models import Tx
+from icon_event_publisher.utils import (
     comma_separator,
     format_token,
     get_tracker_url,
     hex_to_int,
     send_discord_notification,
-    shorten_icx_address
+    shorten_icx_address,
 )
+from rich import print
 
 
 def process_craft_transaction(tx: Tx, logs: list, log_methods: list):
@@ -36,9 +36,7 @@ def process_craft_transaction(tx: Tx, logs: list, log_methods: list):
             quantity = tx.data["params"]["_amount"]
             token_score = tx.data["params"]["_tokenScore"]
             message = f"🙋‍♂️ [{shorten_icx_address(tx.from_address)}]({_get_craft_user_url(tx.from_address)}) made a {format_token(price, 'ICX')} offer for {quantity} unit of [#{id}]({_get_nft_url(token_score, id)}) [➡️](<{get_tracker_url(tx.hash)}>)"
-        if tx.method == "acceptOffer": # 38734953
+        if tx.method == "acceptOffer":  # 38734953
             print(tx.value)
 
     return message
-
-

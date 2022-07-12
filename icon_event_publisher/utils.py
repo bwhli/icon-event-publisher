@@ -1,7 +1,9 @@
 import codecs
 import os
-import requests
 from functools import lru_cache
+
+import rapidjson
+import requests
 
 TOKENS = {
     "cxf61cd5a45dc9f91c15aa65831a30a90d59a09619": {"ticker": "BALN", "precision": 18},
@@ -21,6 +23,17 @@ TOKENS = {
 IGNORED_CONTRACTS = ["cxaa99a164586883eed0322d62a31946dfa9491fa6"]  # [Optimus]
 
 
+def convert_hex_to_int(data):
+    data = rapidjson.loads(data)
+    formatted_data = []
+    for element in data:
+        if element[:2] == "0x" and element != "0x":
+            formatted_data.append(int(element, 16))
+        else:
+            formatted_data.append(element)
+    return formatted_data
+
+
 #################
 ## TOKEN STUFF ##
 #################
@@ -32,10 +45,12 @@ def get_token_ticker(contract: str):
     else:
         return TOKENS[contract]["ticker"]
 
+
 @lru_cache(maxsize=1)
 def get_token_tickers():
-    token_tickers = [ TOKENS[contract]["ticker"] for contract in TOKENS.keys()]
+    token_tickers = [TOKENS[contract]["ticker"] for contract in TOKENS.keys()]
     return token_tickers
+
 
 def get_token_precision(contract: str):
     if contract[:2] != "cx":
@@ -84,19 +99,22 @@ def format_token(token_amount: int, token_contract: str):
             token_contract = get_token_contract(token_contract)
         token_symbol = get_token_ticker(token_contract)
         token_precision = get_token_precision(token_contract)
-    token_amount = token_amount / 10 ** token_precision
+    token_amount = token_amount / 10**token_precision
     if token_amount.is_integer() is True:
         result = f"{token_amount:,.{0}f} {token_symbol}"
     else:
         result = f"{token_amount:,.{4}f} {token_symbol}"
     return result
 
+
 def get_tracker_url(tx_hash: str):
     return f"https://tracker.icon.community/transaction/{tx_hash}"
+
 
 def hex_to_int(input):
     result = int(input, 16)
     return result
+
 
 def shorten_icx_address(icx_address: str):
     return f"{icx_address[:4]}...{icx_address[-4:]}"

@@ -1,7 +1,14 @@
 import ast
-from models import Tx
+
+from icon_event_publisher.models import Tx
+from icon_event_publisher.utils import (
+    comma_separator,
+    format_token,
+    get_tracker_url,
+    hex_to_int,
+    shorten_icx_address,
+)
 from rich import print
-from utils import comma_separator, format_token, get_tracker_url, hex_to_int, shorten_icx_address
 
 
 def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
@@ -54,12 +61,16 @@ def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
                 f"supplied {format_token(base_amount, base_token)} and {format_token(quote_amount, quote_token)}",
             )
 
-    if tx.to_address == "cx203d9cd2a669be67177e997b8948ce2c35caffae":  # Balanced Dividends
+    if (
+        tx.to_address == "cx203d9cd2a669be67177e997b8948ce2c35caffae"
+    ):  # Balanced Dividends
         if tx.method == "claim":  # 45588380
             log = [log for log in logs if log.method == "Claimed"][0]
             dividends = ast.literal_eval(log.data[2])
             nonzero_dividends = [
-                f"{format_token(amount, contract)}" for contract, amount in dividends.items() if amount > 0
+                f"{format_token(amount, contract)}"
+                for contract, amount in dividends.items()
+                if amount > 0
             ]
             if len(nonzero_dividends) > 0:
                 message = (
@@ -78,7 +89,9 @@ def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
             f"withdrew {format_token(base_amount, base_token)} and {format_token(quote_amount, quote_token)}",
         )
 
-    if tx.to_address == "cx44250a12074799e26fdeee75648ae47e2cc84219":  # Balanced Governance
+    if (
+        tx.to_address == "cx44250a12074799e26fdeee75648ae47e2cc84219"
+    ):  # Balanced Governance
         if tx.method == "castVote":  # 45561816
             log = [log for log in logs if log.method == "VoteCast"][0]
             vote_index = hex_to_int(tx.data["params"]["vote_index"])
@@ -101,22 +114,32 @@ def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
                 log = [log for log in logs if log.method == "CollateralReceived"][0]
                 collateral_amount = log.data[0]
                 collateral_token = log.indexed[2]
-                message = ("🏦", f"deposited {format_token(collateral_amount, collateral_token)} as collateral")
+                message = (
+                    "🏦",
+                    f"deposited {format_token(collateral_amount, collateral_token)} as collateral",
+                )
             if "OriginateLoan" in log_methods:  # 45589694
                 log = [log for log in logs if log.method == "OriginateLoan"][0]
                 loan_amount = log.indexed[3]
                 loan_token = log.indexed[2]
                 message = ("🏦", f"minted {format_token(loan_amount, loan_token)}")
 
-    if tx.to_address == "cx10d59e8103ab44635190bd4139dbfd682fa2d07e":  # Balanced Rewards
+    if (
+        tx.to_address == "cx10d59e8103ab44635190bd4139dbfd682fa2d07e"
+    ):  # Balanced Rewards
         if tx.method == "claimRewards":  # 45584850
             log = [log for log in logs if log.method == "RewardsClaimed"][0]
             claim_amount = log.data[0]
             message = ("🤑", f"claimed {format_token(claim_amount, 'BALN')}")
 
-    if tx.to_address == "cxcfe9d1f83fa871e903008471cca786662437e58d":  # Balanced Worker Token
+    if (
+        tx.to_address == "cxcfe9d1f83fa871e903008471cca786662437e58d"
+    ):  # Balanced Worker Token
         total_distributions = sum([log.indexed[3] for log in logs])
-        message = ("💸", f"Balanced distributed {format_token(total_distributions, 'BALN')} to BALW holders")
+        message = (
+            "💸",
+            f"Balanced distributed {format_token(total_distributions, 'BALN')} to BALW holders",
+        )
 
     ############
     ## TOKENS ##
@@ -125,11 +148,16 @@ def process_balanced_transaction(tx: Tx, logs: list, log_methods: list):
     if tx.to_address == "cxf61cd5a45dc9f91c15aa65831a30a90d59a09619":  # BALN
         if tx.method == "stake":  # 45589689
             stake_amount = hex_to_int(tx.data["params"]["_value"])
-            message = ("🥩", f"adjusted BALN stake to {format_token(stake_amount, 'BALN')}")
+            message = (
+                "🥩",
+                f"adjusted BALN stake to {format_token(stake_amount, 'BALN')}",
+            )
 
     # Format Discord notification message.
     if ext_url is None:
         ext_url = get_tracker_url(tx.hash)
     emoji, body = message[0], message[1]
-    formatted_message = f"{emoji} `{shorten_icx_address(tx.from_address)}` [**{body}**](<{ext_url}>)"
+    formatted_message = (
+        f"{emoji} `{shorten_icx_address(tx.from_address)}` [**{body}**](<{ext_url}>)"
+    )
     return formatted_message

@@ -6,12 +6,15 @@ import requests
 from dotenv import load_dotenv
 from rich import print
 
-from icx import Icx
-from models import Tx
-from processors import process_transaction
-from utils import is_production
+from icon_event_publisher.contracts import get_contracts
+from icon_event_publisher.icx import Icx
+from icon_event_publisher.models import Tx
+from icon_event_publisher.processors import process_transaction
+from icon_event_publisher.utils import is_production
 
 load_dotenv()
+
+CONTRACTS = get_contracts()
 
 
 def main():
@@ -35,7 +38,7 @@ def main():
                     valid_transactions = [
                         Tx(**tx)
                         for tx in transactions
-                        if tx["status"] == "0x1" and tx["from_address"] != "None"
+                        if tx["status"] == "0x1" and tx["to_address"] in CONTRACTS
                     ]
                     if len(valid_transactions) > 0:
                         with ThreadPoolExecutor(
