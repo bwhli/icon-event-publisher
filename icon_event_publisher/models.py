@@ -1,5 +1,4 @@
-import json
-
+import rapidjson
 from pydantic import BaseModel, validator
 
 
@@ -26,7 +25,7 @@ class Log(BaseModel):
 
     @staticmethod
     def _convert_hex_to_int(data):
-        data = json.loads(data)
+        data = rapidjson.loads(data)
         formatted_data = []
         for element in data:
             if element[:2] == "0x" and element != "0x":
@@ -52,4 +51,4 @@ class Tx(BaseModel):
     @validator("data")
     @classmethod
     def validate_indexed(cls, data):
-        return json.loads(data)
+        return rapidjson.loads(data)

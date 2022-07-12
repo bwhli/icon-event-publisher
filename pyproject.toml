@@ -5,13 +5,14 @@ description = ""
 authors = ["Brian Li <brian@brianli.com>"]
 
 [tool.poetry.dependencies]
-python = "3.10.2"
+python = "3.10.4"
 iconsdk = "^2.0.0"
 rich = "^11.1.0"
 pydantic = "^1.9.0"
 requests = "^2.27.1"
 python-dotenv = "^0.19.2"
 ably = "^1.2.0"
+python-rapidjson = "^1.8"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
