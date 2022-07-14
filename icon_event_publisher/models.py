@@ -50,4 +50,8 @@ class Tx(BaseModel):
     @validator("data")
     @classmethod
     def validate_indexed(cls, data):
-        return rapidjson.loads(data)
+        try:
+            return rapidjson.loads(data)
+        except:
+            print(data)
+            return None
